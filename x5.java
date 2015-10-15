@@ -1,9 +1,9 @@
-//// X5:  collisions.  bam59cst112eve/x5
+//// X5:  collisions.  /x5
 //// (Assume ball diameter of 30.)
 
 //// GLOBALS:  pool table, 3 colored balls
 
-String title=  "ELASTIC COLLISIONS  (x5eve.java)";
+String title=  "ELASTIC COLLISIONS  (x5.java)";
 String news=   "Use 'r' key to reset.";
 String author=  "Your Name";
 
@@ -15,6 +15,7 @@ float cueX,  cueY,  cueDX,  cueDY;
 float redX,  redY,  redDX,  redDY;
 float yelX,  yelY,  yelDX,  yelDY;
 float bluX, bluY, bluDX, bluDY;
+
 
 //// SETUP:  size and table
 void setup() {
@@ -31,14 +32,19 @@ void setup() {
    cueX=  left + (right-left) / 4;
    cueY=  top + (bottom-top) / 2;
    // Random positions.
-   redX=  random( middle,right );   redY=  random( top, bottom );
-   yelX=  random( middle,right );   yelY=  random( top, bottom );
-   bluX=  random( middle,right );   bluY=  random( top, bottom );
+   
+   redX=  width*2/3;   redY=  top +(bottom-top)/2;
+   yelX=  redX+23;   yelY=  redY+23;
+   bluX=  redX+23;   bluY=  redY-23;
+   
    // Random speeds
-   redDX=  random( 1,3 );   redDY=  random( 1,3 );
-   yelDX=  random( 1,3 );   redDY=  random( 1,3 );
-   bluDX=  random( 1,3 );   bluDY=  random( 1,3 );
+   
+   redDX=  random( 0 );   redDY=  random( 0 );
+   yelDX=  random( 0 );   yelDY=  random( 0 );
+   bluDX=  random( 0 );   bluDY=  random( 0 );
  }
+ 
+
 
 //// NEXT FRAME:  table, bounce off walls, collisions, show all
 void draw() {
@@ -63,11 +69,18 @@ void table( float left, float top, float right, float bottom ) {
 
 //// ACTION:  bounce off walls, collisions
 void bounce() {
+  cueX += cueDX;  if ( cueX<left || cueX>right ) cueDX *= -1;
+  cueY += cueDY;  if ( cueY<top || cueY>bottom ) cueDY *=  -1;
+  
+  
   redX += redDX;  if ( redX<left || redX>right ) redDX *= -1;
   redY += redDY;  if ( redY<top || redY>bottom ) redDY *=  -1;
 
   yelX += yelDX;  if ( yelX<left || yelX>right ) yelDX *= -1;
   yelY += yelDY;  if ( yelY<top || yelY>bottom ) yelDY *=  -1;
+  
+  bluX += bluDX;  if ( bluX<left || bluX>right ) bluDX *= -1;
+  bluY += bluDY;  if ( bluY<top || bluY>bottom ) bluDY *=  -1;
 
 }
 void collisions() {
@@ -76,6 +89,32 @@ void collisions() {
   if ( dist( redX,redY, yelX,yelY ) < 30 ) {
     tmp=yelDX;  yelDX=redDX;  redDX=tmp;
     tmp=yelDY;  yelDY=redDY;  redDY=tmp;
+  }
+    if ( dist( redX,redY, bluX,bluY ) < 30 ) {
+    tmp=bluDX;  bluDX=redDX;  redDX=tmp;
+    tmp=bluDY;  bluDY=redDY;  redDY=tmp;
+  }
+  if ( dist( bluX,bluY, yelX,yelY ) < 30 ) {
+    tmp=yelDX;  yelDX=bluDX;  bluDX=tmp;
+    tmp=yelDY;  yelDY=bluDY;  bluDY=tmp;
+  }
+    
+    if ( dist( bluX,bluY, cueX,cueY ) < 30 ) {
+    tmp=cueDX;  cueDX=bluDX;  bluDX=tmp;
+    tmp=cueDY;  cueDY=bluDY;  bluDY=tmp;
+    
+     }
+    if ( dist( yelX,yelY, cueX,cueY ) < 30 ) {
+    tmp=cueDX;  cueDX=redDX;  yelDX=tmp;
+    tmp=cueDY;  cueDY=redDY;  yelDY=tmp;
+    
+     }
+    if ( dist( redX,redY, cueX,cueY ) < 30 ) {
+    tmp=cueDX;  cueDX=redDX;  redDX=tmp;
+    tmp=cueDY;  cueDY=redDY;  redDY=tmp;
+    
+   
+        
   }
 }
 
@@ -93,11 +132,21 @@ void messages() {
   text( news, width/3, 40 );
   text( author, 10, height-10 );
 }
-
-
+void mousePressed() {
+  //// hit the cue ball -- distance = force
+  float force=  dist( mouseX,mouseY, cueX,cueY ) / 20;
+  strokeWeight( force );
+  line( mouseX,mouseY, cueX,cueY );
+  strokeWeight(1);
+  
+  cueDX=(cueDX-mouseX);
+  cueDY=(cueDY-mouseY);
+}
 //// HANDLERS:  keys, click
-void keyPressed() {
+void keyPressed()  {  
   if (key == 'r') {
     reset();
   }
 }
+  
+  
